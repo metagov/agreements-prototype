@@ -1,0 +1,8 @@
+# private information
+agreements/app/database/db.json
+agreements/app/auth/apikeys.json
+
+# config and testing files
+__pycache__
+.vscode
+**_test**
