@@ -3,6 +3,7 @@ agreements/app/database/db.json
 agreements/app/auth/apikeys.json
 
 # config and testing files
-__pycache__
+**/__pycache__
 .vscode
 **_test**
+*.log
