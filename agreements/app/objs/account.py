@@ -233,7 +233,7 @@ class Account:
         self.logger.info(f'Executing contracts for {self.screen_name} [{self.id}]')
 
         text = status.full_text 
-        arg = text[text.find("+exe"):].split()[1]
+        arg = text[text.find(core.Consts.execute_kword):].split()[1]
 
         # extracting amount to spend
         try:

@@ -136,7 +136,7 @@ class Contract:
 
     def generate(self):
         text = self.status.full_text
-        arg = text[text.find("+gen"):].split()[1]
+        arg = text[text.find(core.Consts.generate_kword):].split()[1]
 
         # detecting contract type (like or retweet)
         if (arg[-1] == "L") or (arg[-1] == "l"):

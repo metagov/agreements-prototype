@@ -48,21 +48,21 @@ class Parser:
         acc = account.Account(status.user)
 
         # generate and execute contract commands
-        if "+gen" in text:
+        if Consts.generate_kword in text:
             acc.create_contract(status)
-        elif "+exe" in text:
+        elif Consts.execute_kword in text:
             acc.execute_contracts(status)
-        elif "+bal" in text:
+        elif Consts.balance_kword in text:
             acc.send_current_balance(status)
-        elif "+likes" in text:
+        elif Consts.likes_kword in text:
             acc.send_current_likes(status)
-        elif "+retweets" in text:
+        elif Consts.retweets_kword in text:
             acc.send_current_retweets(status)
-        elif "+agr" in text:
+        elif Consts.agreement_kword in text:
             acc.create_agreement(status)
-        elif "+upheld" in text:
+        elif Consts.upheld_kword in text:
             acc.vote_upheld(status)
-        elif "+broken" in text:
+        elif Consts.broken_kword in text:
             acc.vote_broken(status)
 
     # adds data from every mention status to the database 

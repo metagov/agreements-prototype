@@ -15,7 +15,7 @@ def run():
 
     new_statuses = []
 
-    logger.info(f'Update started at status #{last_status_parsed}')
+    # logger.info(f'Update started at status #{last_status_parsed}')
 
     # collects new statuses in reverse chronological order
     for status in tweepy.Cursor(
@@ -26,7 +26,6 @@ def run():
     ).items():
         new_statuses.append(status)
 
-    logger.info('Fetched {} new statuses'.format(len(new_statuses)))
 
     # iterates through statuses in chronological order
     for status in reversed(new_statuses):
@@ -38,3 +37,5 @@ def run():
         # updates last status id -> next mentions timeline won't see already parsed tweets
         if status.id > last_status_parsed:
             meta.update('last_status_parsed', status.id)
+    
+    return (len(new_statuses), last_status_parsed)
