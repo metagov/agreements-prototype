@@ -52,6 +52,7 @@ class Parser:
         for word in text.split():
             if word in Consts.kwords.values():
                 kword = word
+                break
 
         # calls function based on first keyword found
         if kword == Consts.kwords['gen']:
