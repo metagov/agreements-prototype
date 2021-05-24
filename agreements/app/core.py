@@ -39,14 +39,16 @@ def retrieve(convert_to, tag):
     return convert_to(db.table('metadata').get(doc_id=1)[tag])
 
 class Consts:
-    generate_kword = 'generate'
-    execute_kword = 'execute'
-    balance_kword = 'balance'
-    likes_kword = 'likes'
-    retweets_kword = 'retweets'
-    agreement_kword = 'agreement'
-    upheld_kword = 'upheld'
-    broken_kword = 'broken'
+    kwords = {
+        'gen': 'generate',
+        'exe': 'execute',
+        'bal': 'balance',
+        'lik': 'likes',
+        'rtw': 'retweets',
+        'agr': 'agreement',
+        'uph': 'upheld',
+        'brk': 'broken'
+    }
     like_value = retrieve(int, 'like_value')
     like_limit = retrieve(int, 'like_limit')
     retweet_value = retrieve(int, 'retweet_value')

@@ -129,6 +129,8 @@ class Contract:
         # attributes show whether a generationg request exceeded the limit, and whether it could be resized to under the limit
         self.resized = False
         self.oversized = False
+        self.no_followers = False
+        self.bad_args = False
     
     # returns dict entry from db
     def get_entry(self):
@@ -136,23 +138,47 @@ class Contract:
 
     def generate(self):
         text = self.status.full_text
-        arg = text[text.find(core.Consts.generate_kword):].split()[1]
-
-        # detecting contract type (like or retweet)
-        if (arg[-1] == "L") or (arg[-1] == "l"):
-            contract_type = "like"
-        elif (arg[-1] == "R") or (arg[-1] == "r"):
-            contract_type = "retweet"
+        # parsing in the form of "generate 10 likes"
+        args = text[text.find(core.Consts.kwords['gen']):].split()
+        if len(args) >= 3:
+            arg_size = args[1]
+            arg_type = args[2]
+        elif len(args) == 2:
+            arg_size = args[1]
+            arg_type = None
         else:
-            self.logger.warn('Invalid contract type')
-            return False
+            arg_size = None
+            arg_type = None
         
-        # trying to extract contract size
-        try:
-            contract_size = int(arg[:-1])
-        except ValueError:
-            self.logger.warn('Could not parse generate command')
-            return False
+        if arg_size:
+            # trying to extract contract size
+            try:
+                contract_size = int(arg_size)
+            except ValueError:
+                self.logger.warn(f'Could not parse contract size: "{arg_size}"')
+                self.bad_args = True
+                return False
+            
+            # trying to extract contract type
+            if arg_type:
+                if (arg_type == "likes") or (arg_type == "like"):
+                    contract_type = "like"
+                elif (arg_type == "retweets") or (arg_type == "retweet"):
+                    contract_type = "retweet"
+                else:
+                    self.logger.warn(f'Could not parse contract type: "{arg_type}"')
+                    self.bad_args = True
+                    return False
+
+            else:
+                # if only size is given, defaults to like
+                contract_type = "like"
+
+        else:
+            # default if no parameters given
+            contract_size = 10
+            contract_type = "like"
+        
         
         return self.complex_generate(contract_type, contract_size)
 
@@ -185,6 +211,10 @@ class Contract:
 
         # calculating unit cost per execution
         social_reach = self.status.user.followers_count
+        if social_reach == 0:
+            self.no_followers = True
+            return False
+
         unit_cost = contract_type_value * social_reach
 
         # generating dict to be entered into db

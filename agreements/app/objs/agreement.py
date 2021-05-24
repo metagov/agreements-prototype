@@ -37,7 +37,7 @@ class Agreement:
     # generates a new agreement
     def generate(self, account):
         text = self.status.full_text
-        arg = text[text.find(core.Consts.agreement_kword):].split()[1]
+        arg = text[text.find(core.Consts.kwords['agr']):].split()[1]
 
         # establishing contract type from tweet args
         if (arg[-1] == "L") or (arg[-1] == "l"):

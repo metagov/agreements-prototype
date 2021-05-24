@@ -209,13 +209,16 @@ class Account:
         # generating message to send to user
         c_entry = new_contract.get_entry()
         update_message = ''
+        
+        if new_contract.bad_args:
+            return False
 
-        if total_value == 0:
-            update_message = f'Your account has 0 followers, so contracts cannot be generated.'
-        elif new_contract.oversized:
+        if new_contract.oversized:
             update_message = f'You have reached your contract limit and cannot generate new ones until they have been used up.'
         elif new_contract.resized:
             update_message = f'Your request exceeded your {c_entry["type"]} contract limit so it was resized. Your account has been credited {to_pay_user} TSC for this {c_entry["count"]} {c_entry["type"]} contract.'
+        elif new_contract.no_followers:
+            update_message = f'Your account has 0 followers, so contracts cannot be generated.'
         else:
             update_message = f'Successfully generated! Your account has been credited {to_pay_user} TSC for this {c_entry["count"]} {c_entry["type"]} contract.'
 
@@ -233,7 +236,7 @@ class Account:
         self.logger.info(f'Executing contracts for {self.screen_name} [{self.id}]')
 
         text = status.full_text 
-        arg = text[text.find(core.Consts.execute_kword):].split()[1]
+        arg = text[text.find(core.Consts.kwords['exe']):].split()[1]
 
         # extracting amount to spend
         try:

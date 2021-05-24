@@ -7,7 +7,7 @@ logger = logging.getLogger('app.scheduler')
 s = sched.scheduler(time.time, time.sleep)
 
 def scheduled_update(sc):
-    s.enter(15, 1, scheduled_update, (sc,))
+    s.enter(60, 1, scheduled_update, (sc,))
     before = time.time()
     
     try:

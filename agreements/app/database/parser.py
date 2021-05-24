@@ -47,22 +47,28 @@ class Parser:
 
         acc = account.Account(status.user)
 
-        # generate and execute contract commands
-        if Consts.generate_kword in text:
+        # finds first keyword
+        kword = None
+        for word in text.split():
+            if word in Consts.kwords.values():
+                kword = word
+
+        # calls function based on first keyword found
+        if kword == Consts.kwords['gen']:
             acc.create_contract(status)
-        elif Consts.execute_kword in text:
+        elif kword ==  Consts.kwords['exe']:
             acc.execute_contracts(status)
-        elif Consts.balance_kword in text:
+        elif kword == Consts.kwords['bal']:
             acc.send_current_balance(status)
-        elif Consts.likes_kword in text:
+        elif kword == Consts.kwords['lik']:
             acc.send_current_likes(status)
-        elif Consts.retweets_kword in text:
+        elif kword == Consts.kwords['rtw']:
             acc.send_current_retweets(status)
-        elif Consts.agreement_kword in text:
+        elif kword == Consts.kwords['agr']:
             acc.create_agreement(status)
-        elif Consts.upheld_kword in text:
+        elif kword == Consts.kwords['uph']:
             acc.vote_upheld(status)
-        elif Consts.broken_kword in text:
+        elif kword == Consts.kwords['brk']:
             acc.vote_broken(status)
 
     # adds data from every mention status to the database 
