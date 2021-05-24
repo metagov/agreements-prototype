@@ -45,7 +45,7 @@ class Agreement:
         elif (arg[-1] == "R") or (arg[-1] == "r"):
             collateral_type = "retweet"
         else:
-            collateral_type = "xsc"
+            collateral_type = "TSC"
         
         # extracts all users mentioned in tweet
         users = self.status.entities['user_mentions']
@@ -59,7 +59,7 @@ class Agreement:
             member = users[1]
         
         # attempts to pay with existing balance
-        if collateral_type == "xsc":
+        if collateral_type == "TSC":
             try:
                 collateral = int(arg)
             except ValueError:
@@ -74,7 +74,7 @@ class Agreement:
             else:
                 # removes funds from account balance
                 account.change_balance(account.id, -collateral)
-                self.logger.info(f'Removed {collateral} XSC of collateral from the balance of {account.screen_name} [{account.id}]')
+                self.logger.info(f'Removed {collateral} TSC of collateral from the balance of {account.screen_name} [{account.id}]')
         
         # if user is paying with likes or retweets, the contract will only be created if the agreement is broken
         else:
@@ -169,12 +169,12 @@ class Agreement:
 
         # both users say the agreement was upheld
         if ruling == 'upheld':
-            # if the creator used xsc as collateral, it is returned to their balance
-            if collateral_type == 'xsc':
+            # if the creator used TSC as collateral, it is returned to their balance
+            if collateral_type == 'TSC':
                 account.change_balance(creator_id, collateral)
-                self.logger.info(f'Paid back {collateral} XSC to {creator_screen_name} [{creator_id}] ')
+                self.logger.info(f'Paid back {collateral} TSC to {creator_screen_name} [{creator_id}] ')
 
-                update_message = f'Agreement is upheld, {collateral} XSC has been repaid to @{creator_screen_name}.'
+                update_message = f'Agreement is upheld, {collateral} TSC has been repaid to @{creator_screen_name}.'
             # if the creator used likes/retweets as collateral nothing happens and the contracts aren't generated
             else:
                 self.logger.info(f'Collateral type was future contract, nothing to do')
@@ -189,11 +189,11 @@ class Agreement:
 
         # both users say the agreement was broken
         elif ruling == 'broken':
-            # if the creator used xsc as collateral, it is transferred to the member
-            if collateral_type == 'xsc':
+            # if the creator used TSC as collateral, it is transferred to the member
+            if collateral_type == 'TSC':
                 account.change_balance(member_id, collateral)
-                self.logger.info(f'Transferred {collateral} XSC to {member_id} [{member_id}]')
-                update_message = f'Agreement is broken, {collateral} XSC has been paid to @{member_screen_name}'
+                self.logger.info(f'Transferred {collateral} TSC to {member_id} [{member_id}]')
+                update_message = f'Agreement is broken, {collateral} TSC has been paid to @{member_screen_name}'
             # if the creator used likes/retweets as collateral, a contract is generated and the profit is transferred to the member
             elif (collateral_type == "like") or (collateral_type == "retweet"):
                 # retrieving inactive contract
@@ -215,8 +215,8 @@ class Agreement:
                 # paid out to agreement engine
                 account.change_balance(core.engine_id, to_pay_engine)
                 account.change_balance(member_id, collateral)
-                self.logger.info(f'Transferred {collateral} XSC to {member_screen_name} [{member_id}]') 
-                update_message = f'Agreement is broken, @{creator_screen_name}\'s contract was generated and {collateral} XSC has been paid to @{member_screen_name}.'
+                self.logger.info(f'Transferred {collateral} TSC to {member_screen_name} [{member_id}]') 
+                update_message = f'Agreement is broken, @{creator_screen_name}\'s contract was generated and {collateral} TSC has been paid to @{member_screen_name}.'
                 
         elif ruling == 'disputed':
             update_message = f'Agreement outcome is disputed. No action will be taken, users can change their ruling to come to a consensus.'

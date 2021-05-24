@@ -85,11 +85,11 @@ class Account:
         if core.Consts.send_tweets:
             # post to twitter
             core.api.update_status(
-                status = f'@{self.screen_name} ' + f'You currently have {self.check_balance()} XSC in your account.' + " #" + str(status.id), 
+                status = f'@{self.screen_name} ' + f'You currently have {self.check_balance()} TSC in your account.' + " #" + str(status.id), 
                 in_reply_to_status_id = status.id, 
                 auto_populate_reply_metadata= True)
         else:
-            print(f'@{self.screen_name} ' + f'You currently have {self.check_balance()} XSC in your account.' + " #" + str(status.id))
+            print(f'@{self.screen_name} ' + f'You currently have {self.check_balance()} TSC in your account.' + " #" + str(status.id))
     
     def send_current_likes(self, status):
         likes = contract.Pool().count_user_contracts('like', self.id)
@@ -149,8 +149,8 @@ class Account:
             collateral = a_entry['collateral']
             c_type = a_entry['collateral_type']
 
-            if c_type == 'xsc':
-                update_message = f'Your agreement staking {collateral} XSC has been created!'
+            if c_type == 'TSC':
+                update_message = f'Your agreement staking {collateral} TSC has been created!'
             else:
                 update_message = f'Your agreement staking {collateral} {c_type}s has been created!'
 
@@ -198,7 +198,7 @@ class Account:
             # paid out to user and agreement engine
             self.change_balance(core.engine_id, to_pay_engine)
             self.change_balance(self.id, to_pay_user)
-            self.logger.info(f'Paid {self.screen_name} [{self.id}] {to_pay_user} XSC ({to_pay_engine} withheld)')
+            self.logger.info(f'Paid {self.screen_name} [{self.id}] {to_pay_user} TSC ({to_pay_engine} withheld)')
 
             # adds contract id to account list
             self.account_table.update(
@@ -215,9 +215,9 @@ class Account:
         elif new_contract.oversized:
             update_message = f'You have reached your contract limit and cannot generate new ones until they have been used up.'
         elif new_contract.resized:
-            update_message = f'Your request exceeded your {c_entry["type"]} contract limit so it was resized. Your account has been credited {to_pay_user} XSC for this {c_entry["count"]} {c_entry["type"]} contract.'
+            update_message = f'Your request exceeded your {c_entry["type"]} contract limit so it was resized. Your account has been credited {to_pay_user} TSC for this {c_entry["count"]} {c_entry["type"]} contract.'
         else:
-            update_message = f'Successfully generated! Your account has been credited {to_pay_user} XSC for this {c_entry["count"]} {c_entry["type"]} contract.'
+            update_message = f'Successfully generated! Your account has been credited {to_pay_user} TSC for this {c_entry["count"]} {c_entry["type"]} contract.'
 
         if core.Consts.send_tweets:
             # post to twitter
@@ -228,7 +228,7 @@ class Account:
         else:
             print(f'@{self.screen_name} ' + update_message + " #" + str(status.id))
 
-    # executes contracts on a requested post for a certain amount of XSC
+    # executes contracts on a requested post for a certain amount of TSC
     def execute_contracts(self, status):
         self.logger.info(f'Executing contracts for {self.screen_name} [{self.id}]')
 
@@ -244,7 +244,7 @@ class Account:
         # executed on the post being replied to (ie reply to post you want to execute contracts on)
         executing_on = status.in_reply_to_status_id
 
-        self.logger.info(f'New execution request spending {to_spend} XSC on status #{executing_on}')
+        self.logger.info(f'New execution request spending {to_spend} TSC on status #{executing_on}')
 
         if to_spend > self.check_balance():
             self.logger.info(f'Execution request exceeds balance')
@@ -259,7 +259,7 @@ class Account:
             self.change_balance(self.id, -amount_spent)
 
             if executed_count > 0:
-                update_message = f'Executed {executed_count} contracts for {amount_spent} XSC.'
+                update_message = f'Executed {executed_count} contracts for {amount_spent} TSC.'
             else:
                 update_message = f'Unable to execute any contracts, your account has not been charged.'
 

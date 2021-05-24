@@ -78,7 +78,7 @@ class Pool:
                 break
         
         if contract_count > 0:
-            self.logger.info(f'Successfully executed {contract_count} contracts for {amount - balance}/{amount} XSC')
+            self.logger.info(f'Successfully executed {contract_count} contracts for {amount - balance}/{amount} TSC')
         else:
             self.logger.info('Was not able to execute any contracts')
 
@@ -96,7 +96,7 @@ class Pool:
 
         status = core.api.get_status(status_id)
 
-        self.logger.info(f'Executed {c_type} contract #{contract_id} from {c_user_screen_name} [{c_user_id}] for {c_price} XSC')
+        self.logger.info(f'Executed {c_type} contract #{contract_id} from {c_user_screen_name} [{c_user_id}] for {c_price} TSC')
 
         if core.Consts.send_tweets:
             # sends out message calling in executed contract
@@ -217,7 +217,7 @@ class Contract:
         # calculating total cost
         total_cost = unit_cost * contract_size
 
-        self.logger.info(f'New contract #{self.id} created for {contract_size} {contract_type}s valued at {total_cost} XSC')
+        self.logger.info(f'New contract #{self.id} created for {contract_size} {contract_type}s valued at {total_cost} TSC')
         self.logger.info(contract)
 
         return total_cost
