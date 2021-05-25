@@ -38,6 +38,8 @@ Metadata(db)
 def retrieve(convert_to, tag):
     return convert_to(db.table('metadata').get(doc_id=1)[tag])
 
+
+
 class Consts:
     kwords = {
         'gen': 'generate',
@@ -54,5 +56,15 @@ class Consts:
     retweet_value = retrieve(int, 'retweet_value')
     retweet_limit = retrieve(int, 'retweet_limit')
     tax_rate = retrieve(float, 'tax_rate')
-    send_tweets = False
+    send_tweets = True
 
+# tweets a message, or displays it to the console if sending tweets is disabled
+def emit(message, in_reply_to):
+    if Consts.send_tweets:
+        api.update_status(
+            status=message,
+            in_reply_to_status_id=in_reply_to,
+            auto_populate_reply_metadata=True
+        )
+    else:
+        print(message)

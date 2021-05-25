@@ -244,16 +244,8 @@ class Agreement:
             update_message = f'Agreement outcome is disputed. No action will be taken, users can change their ruling to come to a consensus.'
 
         if (ruling == 'upheld') or (ruling == 'broken') or (ruling == 'disputed'):
-            if core.Consts.send_tweets:
-                # post to twitter
-                core.api.update_status(
-                    status = update_message + " #" + str(self.id), 
-                    in_reply_to_status_id = self.id, 
-                    auto_populate_reply_metadata= True)
-            else:
-                print(update_message + " #" + str(self.id))
-                       
-
+            # send result
+            core.emit(update_message, self.id)
     
     def check_ruling(self):
         m_ruling = self.get_entry()['member_ruling']

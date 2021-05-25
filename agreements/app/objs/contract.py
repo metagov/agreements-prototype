@@ -98,14 +98,8 @@ class Pool:
 
         self.logger.info(f'Executed {c_type} contract #{contract_id} from {c_user_screen_name} [{c_user_id}] for {c_price} TSC')
 
-        if core.Consts.send_tweets:
-            # sends out message calling in executed contract
-            core.api.update_status(
-                status = f'@{c_user_screen_name} Your contract has been called in, please {c_type} the above post!' + " #" + str(status_id), 
-                in_reply_to_status_id = status_id, 
-                auto_populate_reply_metadata= True)
-        else:
-            print(f'@{c_user_screen_name} Your contract has been called in, please {c_type} the above post!' + " #" + str(status_id))
+        message = f'@{c_user_screen_name} Your contract has been called in, please {c_type} the above post!'
+        core.emit(message, status_id)
         
         # transform function to update contract use count and executions
         def update_contract(status_id):
