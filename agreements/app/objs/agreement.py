@@ -3,30 +3,32 @@ from tinydb.database import Document
 import logging, math
 import tweepy
 from . import contract
+from . import account
 
 class Agreement:
     def __init__(self, arg):
         self.agreement_table = core.db.table('agreements')
         self.logger = logging.getLogger(".".join([self.__module__, type(self).__name__]))
-        self.valid = False
         self.balance_limited = False
         self.contract_limited = False
+        self.no_members = False
+        self.error_parsing = False
+        self.valid = True
         
         if type(arg) == int:
             self.id = arg
-            if self.in_database():
-                self.valid = True
-            else:
+            if not self.in_database():
                 self.logger.warn('Agreement does not exist, unable to generate (status not provided)')
+                self.valid = False
 
         elif type(arg) == tweepy.models.Status:
             status = arg
             self.id = status.id
             self.status = status
-            self.valid = True
 
         else:
             self.logger.warn('Invalid parameter when creating Agreement')
+            self.valid = False
 
     def get_entry(self):
         return self.agreement_table.get(doc_id=self.id)
@@ -37,12 +39,25 @@ class Agreement:
     # generates a new agreement
     def generate(self, account):
         text = self.status.full_text
-        arg = text[text.find(core.Consts.kwords['agr']):].split()[1]
+        # "agreementengine" is stripped from input because it is selected instead of "agreement" command
+        text = text.replace("agreementengine", "")
+        args = text[text.find(core.Consts.kwords['agr']):].split()
+
+        
+        if len(args) == 1:
+            self.error_parsing = True
+            return False
+        # min 2 args
+        elif len(args) == 2:
+            arg_type = ""
+        else:
+            arg_size = args[1]
+            arg_type = args[2]
 
         # establishing contract type from tweet args
-        if (arg[-1] == "L") or (arg[-1] == "l"):
+        if (arg_type == "like") or (arg_type == "likes"):
             collateral_type = "like"
-        elif (arg[-1] == "R") or (arg[-1] == "r"):
+        elif (arg_type == "retweet") or (arg_type == "retweets"):
             collateral_type = "retweet"
         else:
             collateral_type = "TSC"
@@ -53,7 +68,7 @@ class Agreement:
         # the first other user becomes the "member" opposite the "creator"
         if len(users) <= 1:
             self.logger.warn('Agreement does not contain other members')
-            self.valid = False
+            self.no_members = True
             return False
         else:
             member = users[1]
@@ -61,10 +76,10 @@ class Agreement:
         # attempts to pay with existing balance
         if collateral_type == "TSC":
             try:
-                collateral = int(arg)
+                collateral = int(arg_size)
             except ValueError:
                 self.logger.warn('Could not parse agreement command')
-                self.valid = False
+                self.error_parsing = True
                 return False
             
             if collateral > account.check_balance():
@@ -79,10 +94,10 @@ class Agreement:
         # if user is paying with likes or retweets, the contract will only be created if the agreement is broken
         else:
             try:
-                collateral = int(arg[:-1])
+                collateral = int(arg_size)
             except ValueError:
                 self.logger.warn('Could not parse agreement command')
-                self.valid = False
+                self.error_parsing = True
                 return False
 
             self.logger.info(f'Generating new contract for {account.screen_name} [{account.id}] (agreement context)')
@@ -92,17 +107,19 @@ class Agreement:
             # creates new contract
             con = contract.Contract(status)
             total_value = con.complex_generate(collateral_type, collateral)
+            
+            # contract will not be activated unless the agreement is broken
+            con.contract_table.update(
+                {'state': 'dead'},
+                doc_ids=[self.id]
+            )
 
             if con.resized or con.oversized:
                 self.logger.warn('Contract limit reached when creating agreement')
                 self.contract_limited = True
                 return False
 
-            # contract will not be activated unless the agreement is broken
-            con.contract_table.update(
-                {'state': 'dead'},
-                doc_ids=[self.id]
-            )
+            
 
         entry = {
             "state": "open",
@@ -211,6 +228,11 @@ class Agreement:
                     doc_ids=[self.id]
                 )    
                 self.logger.info(f'Collateral contract #{self.id} activated')
+
+                core.db.table('accounts').update(
+                    lambda d: d['contracts'].append(str(self.id)),
+                    doc_ids=[creator_id]
+                )
 
                 # paid out to agreement engine
                 account.change_balance(core.engine_id, to_pay_engine)

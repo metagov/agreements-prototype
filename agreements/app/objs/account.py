@@ -140,12 +140,16 @@ class Account:
             update_message = f'This agreement could not be created because you have reached your contract limit.'
         elif new_agreement.balance_limited:
             update_message = f'This agreement could not be created because you have exceeded your balance.'
-        elif not new_agreement.valid:
-            update_message = f'Invalid agreement, failed to create.'
+        elif new_agreement.no_members:
+            update_message = f'Agreements must contain another member.'
+        elif new_agreement.error_parsing:
+            return False
+            # not sending messages for invalid commands at the moment, could get annoying
         else:
             a_entry = new_agreement.get_entry()
             if not a_entry:
-                pdb.set_trace()
+                self.logger.warn("Couldn't get agreement from database (this shouldn't happen)")
+                return False
             collateral = a_entry['collateral']
             c_type = a_entry['collateral_type']
 
@@ -252,7 +256,7 @@ class Account:
         if to_spend > self.check_balance():
             self.logger.info(f'Execution request exceeds balance')
 
-            update_message = f'This request exceeds your balance.'
+            update_message = f'This request exceeds your balance of {self.check_balance()} TSC.'
         else:
             contract_pool = contract.Pool()
             # auto execute function will try to spend all of the funds requested executing contracts
