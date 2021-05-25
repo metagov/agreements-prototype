@@ -81,7 +81,7 @@ class Agreement:
             try:
                 collateral = int(arg[:-1])
             except ValueError:
-                logger.warn('Could not parse agreement command')
+                self.logger.warn('Could not parse agreement command')
                 self.valid = False
                 return False
 
