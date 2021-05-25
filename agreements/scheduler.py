@@ -15,7 +15,9 @@ def scheduled_update(sc):
     except Exception as e:
         logger.warn(traceback.format_exc())
 
-    logger.info('Processed {} new statuses since #{} in {:.3f} seconds'.format(num_processed, last_status, time.time() - before))
+    # only sends update if new statuses were processed so the console doesn't get spammed
+    if num_processed > 0:
+        logger.info('Processed {} new statuses since #{} in {:.3f} seconds'.format(num_processed, last_status, time.time() - before))
 
 s.enter(0, 1, scheduled_update, (s,))
 s.run()
