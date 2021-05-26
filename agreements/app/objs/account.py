@@ -11,6 +11,8 @@ class Account:
         self.account_table = core.db.table('accounts')
         self.logger = logging.getLogger(".".join([self.__module__, type(self).__name__]))
 
+        new_user = False
+
         # can be initialized with a user id integer, attempts to find account entry in db
         if type(arg) == int:
             self.id = arg
@@ -23,10 +25,18 @@ class Account:
             self.id = user.id
             if not self.in_database():
                 self.generate(user)
+                new_user = True
+                
         else:
             self.logger.warn('Invalid parameter when creating Account')
 
         self.screen_name = self.get_entry()['screen_name']
+
+        # greeting message for new users (excluding the agreement engine)
+        if new_user and (self.id != core.api.me().id):
+            self.logger.info(f"Welcoming {self.screen_name}")
+            message = f"@{self.screen_name} Welcome to agreement engine! Here are some useful links to get you started: https://agreements.metagov.org"
+            core.emit(message, self.id)
 
     # returns dict from db
     def get_entry(self):
@@ -63,6 +73,8 @@ class Account:
             increment_num_accounts, 
             doc_ids=[0]
         )
+
+        self.logger.info(f'New account created for @{user.screen_name}!')
     
     # modifies account balance
     def change_balance(self, user_id, amount):
@@ -82,43 +94,24 @@ class Account:
     def send_current_balance(self, status):
         self.logger.info('Sending current balance')
 
-        if core.Consts.send_tweets:
-            # post to twitter
-            core.api.update_status(
-                status = f'@{self.screen_name} ' + f'You currently have {self.check_balance()} TSC in your account.' + " #" + str(status.id), 
-                in_reply_to_status_id = status.id, 
-                auto_populate_reply_metadata= True)
-        else:
-            print(f'@{self.screen_name} ' + f'You currently have {self.check_balance()} TSC in your account.' + " #" + str(status.id))
-    
+        message = f'@{self.screen_name} ' + f'You currently have {self.check_balance()} TSC in your account.'
+        core.emit(message, status.id)
+        
     def send_current_likes(self, status):
         likes = contract.Pool().count_user_contracts('like', self.id)
 
         self.logger.info('Sending active like contract count')
 
-        if core.Consts.send_tweets:
-            # post to twitter
-            core.api.update_status(
-                status = f'@{self.screen_name} ' + f'You currently have {likes} active like contracts.' + " #" + str(status.id), 
-                in_reply_to_status_id = status.id, 
-                auto_populate_reply_metadata= True)
-        else:
-            print(f'@{self.screen_name} ' + f'You currently have {likes} active like contracts.' + " #" + str(status.id))
+        message = f'@{self.screen_name} ' + f'You currently have {likes} active like contracts.'
+        core.emit(message, status.id)
 
     def send_current_retweets(self, status):
         retweets = contract.Pool().count_user_contracts('retweet', self.id)
 
         self.logger.info('Sending active retweet contract count')
 
-
-        if core.Consts.send_tweets:
-            # post to twitter
-            core.api.update_status(
-                status = f'@{self.screen_name} ' + f'You currently have {retweets} active retweet contracts.' + " #" + str(status.id), 
-                in_reply_to_status_id = status.id, 
-                auto_populate_reply_metadata= True)
-        else:
-            print(f'@{self.screen_name} ' + f'You currently have {retweets} active retweet contracts.' + " #" + str(status.id))
+        message = f'@{self.screen_name} ' + f'You currently have {retweets} active retweet contracts.'
+        core.emit(message, status.id)
 
     # checks whether a user has had a like contract called in on a status
     def has_liked(self, status_id):
@@ -140,12 +133,16 @@ class Account:
             update_message = f'This agreement could not be created because you have reached your contract limit.'
         elif new_agreement.balance_limited:
             update_message = f'This agreement could not be created because you have exceeded your balance.'
-        elif not new_agreement.valid:
-            update_message = f'Invalid agreement, failed to create.'
+        elif new_agreement.no_members:
+            update_message = f'Agreements must contain another member.'
+        elif new_agreement.error_parsing:
+            return False
+            # not sending messages for invalid commands at the moment, could get annoying
         else:
             a_entry = new_agreement.get_entry()
             if not a_entry:
-                pdb.set_trace()
+                self.logger.warn("Couldn't get agreement from database (this shouldn't happen)")
+                return False
             collateral = a_entry['collateral']
             c_type = a_entry['collateral_type']
 
@@ -154,14 +151,8 @@ class Account:
             else:
                 update_message = f'Your agreement staking {collateral} {c_type}s has been created!'
 
-        if core.Consts.send_tweets:
-            # post to twitter
-            core.api.update_status(
-                status = f'@{self.screen_name} ' + update_message + " #" + str(status.id), 
-                in_reply_to_status_id = status.id, 
-                auto_populate_reply_metadata= True)
-        else:
-            print(f'@{self.screen_name} ' + update_message + " #" + str(status.id))
+        message = f'@{self.screen_name} ' + update_message
+        core.emit(message, status.id)
 
     def vote_upheld(self, status):
         original_agreement = agreement.Agreement(status.in_reply_to_status_id)
@@ -209,31 +200,28 @@ class Account:
         # generating message to send to user
         c_entry = new_contract.get_entry()
         update_message = ''
+        
+        if new_contract.bad_args:
+            return False
 
-        if total_value == 0:
-            update_message = f'Your account has 0 followers, so contracts cannot be generated.'
-        elif new_contract.oversized:
+        if new_contract.oversized:
             update_message = f'You have reached your contract limit and cannot generate new ones until they have been used up.'
         elif new_contract.resized:
             update_message = f'Your request exceeded your {c_entry["type"]} contract limit so it was resized. Your account has been credited {to_pay_user} TSC for this {c_entry["count"]} {c_entry["type"]} contract.'
+        elif new_contract.no_followers:
+            update_message = f'Your account has 0 followers, so contracts cannot be generated.'
         else:
             update_message = f'Successfully generated! Your account has been credited {to_pay_user} TSC for this {c_entry["count"]} {c_entry["type"]} contract.'
 
-        if core.Consts.send_tweets:
-            # post to twitter
-            core.api.update_status(
-                status = f'@{self.screen_name} ' + update_message + " #" + str(status.id), 
-                in_reply_to_status_id = status.id, 
-                auto_populate_reply_metadata= True)
-        else:
-            print(f'@{self.screen_name} ' + update_message + " #" + str(status.id))
+        message = f'@{self.screen_name} ' + update_message
+        core.emit(message, status.id)
 
     # executes contracts on a requested post for a certain amount of TSC
     def execute_contracts(self, status):
         self.logger.info(f'Executing contracts for {self.screen_name} [{self.id}]')
 
         text = status.full_text 
-        arg = text[text.find(core.Consts.execute_kword):].split()[1]
+        arg = text[text.find(core.Consts.kwords['exe']):].split()[1]
 
         # extracting amount to spend
         try:
@@ -249,7 +237,7 @@ class Account:
         if to_spend > self.check_balance():
             self.logger.info(f'Execution request exceeds balance')
 
-            update_message = f'This request exceeds your balance.'
+            update_message = f'This request exceeds your balance of {self.check_balance()} TSC.'
         else:
             contract_pool = contract.Pool()
             # auto execute function will try to spend all of the funds requested executing contracts
@@ -263,13 +251,7 @@ class Account:
             else:
                 update_message = f'Unable to execute any contracts, your account has not been charged.'
 
-        if core.Consts.send_tweets:
-            # posting message to twitter
-            core.api.update_status(
-                status = f'@{self.screen_name} ' + update_message + " #" + str(status.id), 
-                in_reply_to_status_id = status.id, 
-                auto_populate_reply_metadata= True)
-        else:
-            print(f'@{self.screen_name} ' + update_message + " #" + str(status.id))
+        message = f'@{self.screen_name} ' + update_message + " #" + str(status.id)
+        core.emit(message, status.id)
 
 
