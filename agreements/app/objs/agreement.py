@@ -254,6 +254,12 @@ class Agreement:
         if m_ruling and c_ruling:
             if m_ruling == c_ruling:
                 self.logger.info(f'Consensus reached: {c_ruling}')
+
+                self.agreement_table.update(
+                    {'state': 'closed'},
+                    doc_ids=[self.id]
+                )
+
                 return c_ruling
             else:
                 self.logger.info('Dispute in agreement')
