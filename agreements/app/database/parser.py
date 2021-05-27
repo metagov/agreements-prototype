@@ -1,7 +1,8 @@
 from tinydb.database import Document
+
 from .metadata import Metadata
-from app.objs import account, contract
-from app.core import Consts
+from ..objs import account, contract
+from ..core import Consts
 
 class Parser:
     def __init__(self, db, api):

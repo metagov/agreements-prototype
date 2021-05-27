@@ -1,6 +1,13 @@
+import sched
+import time
+import logging
+import traceback
+from pathlib import Path
+import sys
+
+sys.path.append(Path(__file__).parent.absolute())
+
 from app.database import update
-import sched, time, datetime
-import logging, traceback
 
 logger = logging.getLogger('app.scheduler')
 

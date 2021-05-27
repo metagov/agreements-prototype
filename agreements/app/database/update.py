@@ -1,5 +1,7 @@
-import tweepy, logging
-from app import core
+import logging
+import tweepy
+
+from .. import core
 from .parser import Parser
 from .metadata import Metadata
 

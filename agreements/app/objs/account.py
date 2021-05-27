@@ -1,9 +1,10 @@
-from app import core
-from tinydb.database import Document
-from . import contract, agreement
-import logging, math
+import logging
+import math
 import tweepy
-import pdb 
+from tinydb.database import Document
+
+from .. import core
+from . import contract, agreement
 
 # represents a single account
 class Account:

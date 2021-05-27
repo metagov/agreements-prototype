@@ -1,9 +1,10 @@
-from app import core
-from tinydb.database import Document
-import logging, math
+import logging
+import math
 import tweepy
+from tinydb.database import Document
+
+from .. import core
 from . import contract
-from . import account
 
 class Agreement:
     def __init__(self, arg):

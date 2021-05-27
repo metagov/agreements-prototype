@@ -1,8 +1,8 @@
 import json, logging
 import tweepy
 from tinydb import TinyDB
-from app.auth import auth
-from app.database.metadata import Metadata
+from .auth import auth
+from .database.metadata import Metadata
 
 # setting up app level logger to log in stdout and to a file
 root_logger = logging.getLogger('app')
@@ -56,7 +56,7 @@ class Consts:
     retweet_value = retrieve(int, 'retweet_value')
     retweet_limit = retrieve(int, 'retweet_limit')
     tax_rate = retrieve(float, 'tax_rate')
-    send_tweets = True
+    send_tweets = False
 
 # tweets a message, or displays it to the console if sending tweets is disabled
 def emit(message, in_reply_to):

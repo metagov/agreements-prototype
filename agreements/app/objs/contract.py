@@ -1,7 +1,8 @@
-from app import core
+import logging
 from tinydb.database import Document
 from tinydb import where
-import logging
+
+from .. import core
 from . import account
 
 # represents the contract pool

@@ -1,6 +1,8 @@
+import json
+import logging
+
 from tinydb.database import Document
 from tinydb import where
-import json, logging
 
 # container for metadata in the tinydb database
 class Metadata:
