@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        .header {
+            display: grid;
+            justify-items: center;
+        }
+
+        .title {
+            font-size: 60px;
+            padding: 20px;
+            padding-bottom: 10px;
+        }
+
+        .tab_container {
+            display: grid;
+            justify-items: center;
+        }
+
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+
+        /* Style the buttons that are used to open the tab content */
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 50px;
+            transition: 0.3s;
+        }
+
+        /* Change background color of buttons on hover */
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        /* Create an active/current tablink class */
+        .tab button.active {
+            background-color: #ccc;
+        }
+
+        .text {
+            margin-top: 50px;
+            margin-right: 200px;
+            margin-left: 200px;
+            font-size: 20px;
+        }
+        
+        a {
+            color: #2687B6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="title">Agreement Engine</div>
+    </div>
+
+    <div class="tab_container">
+        <div class="tab">
+            <button onclick="window.location.href='/help'">help</button>
+            <button onclick="window.location.href='/about'">about</button>
+            <button onclick="window.open('https://github.com/metagov/agreements-prototype', '_blank')">source</button>
+            <button onclick="window.open('https://metagov.org', '_blank')">metagov</button>
+        </div>
+    </div>
+    
+
+    <div class="tab_container">
+        <div class="tab">
+            <button
+                onclick="window.open('https://twitter.com/intent/tweet?text=@agreementengine%20agreement%2010%20likes')">Tweet!</button>
+        </div>
+    </div>
+</body>
+
+</html>

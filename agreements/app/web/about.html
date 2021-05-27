@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        .header {
+            display: grid;
+            justify-items: center;
+        }
+
+        .title {
+            font-size: 60px;
+            padding: 20px;
+            padding-bottom: 10px;
+        }
+
+        .tab_container {
+            display: grid;
+            justify-items: center;
+        }
+
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+
+        /* Style the buttons that are used to open the tab content */
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 50px;
+            transition: 0.3s;
+        }
+
+        /* Change background color of buttons on hover */
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        /* Create an active/current tablink class */
+        .tab button.active {
+            background-color: #ccc;
+        }
+
+        .text {
+            margin-top: 50px;
+            margin-right: 200px;
+            margin-left: 200px;
+            font-size: 20px;
+        }
+        
+        a {
+            color: #2687B6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="title">Agreement Engine</div>
+    </div>
+
+    <div class="tab_container">
+        <div class="tab">
+            <button onclick="window.location.href='/help'">help</button>
+            <button onclick="window.location.href='/about'">about</button>
+            <button onclick="window.open('https://github.com/metagov/agreements-prototype', '_blank')">source</button>
+            <button onclick="window.open('https://metagov.org', '_blank')">metagov</button>
+        </div>
+    </div>
+
+    <div class="text">
+        <p>The Agreement Engine is a software model for the creation, representation, and enforcement of all different kinds of agreements. In its current implementation, we are prototyping a model of social enforcement on Twitter. </p>
+        <p>Here are some resources where you can learn more: </p>
+        <ul>
+            <li>This is project is a part of the larger <a href="https://metagov.org">Metagovernance Project</a></li>
+            <li>Take a look at our open soruce <a href="https://github.com/metagov/agreements-prototype">GitHub repository</a></li>
+            <li>Read our <a href="https://docs.google.com/document/d/1GNHmhB-xOhOfmrP__F6OY9dQMqF_ZvuM_WBO0GIeRqs/edit?usp=sharing">Blog Post</a> about Agreement Engine</li>
+            <li>Check out our <a href="https://docs.google.com/document/d/1Gy8tMuRrCbK3i7Go6s-sUK6nHNOz81ccfYzKQXeiW2E/edit?usp=sharing">progress and development goals</a></li>
+        </ul>
+    </div>
+    
+</body>
+
+</html>
