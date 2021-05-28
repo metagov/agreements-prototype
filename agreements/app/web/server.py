@@ -1,4 +1,4 @@
-from flask import Flask, abort
+from flask import Flask, redirect
 
 flask_app = Flask(__name__)
 
@@ -9,6 +9,10 @@ def get_html(name):
     return html
 
 @flask_app.route('/')
+def root():
+    return redirect('/home')
+    
+@flask_app.route('/home')
 def home():
     return get_html('home')
 
