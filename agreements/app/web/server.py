@@ -31,8 +31,10 @@ def latest_agreements():
     f = open('app/database/db.json', 'r')
     db = json.load(f)
     f.close()
+    # retrieves status ids of 10 most recent agreements
     statuses = list(db['agreements'].keys())[1:11]
 
-    return json.dumps(statuses)        
+    # converts list to json recognizable dictionary
+    return dict(zip(range(1, 11), statuses))
 
 # flask_app.run(host="127.0.0.1", port=80, debug=True)
