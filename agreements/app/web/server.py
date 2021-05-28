@@ -43,6 +43,6 @@ def latest_agreements():
         urls.append(url)
 
     # converts list to json recognizable dictionary
-    return dict(zip(range(0, 10), urls))
+    return dict(zip(range(0, 10), urls[::-1]))
 
 # flask_app.run(host="127.0.0.1", port=80, debug=True)
