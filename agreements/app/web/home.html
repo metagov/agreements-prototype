@@ -88,20 +88,25 @@
 </body>
 
 <script>
-    function render() {
+    function render(url) {
         let e = document.getElementById('tweet-template').cloneNode(true);
         e.removeAttribute('hidden');
         e.className = 'twitter-tweet';
 
-        let a = e.getElementsByClassName('twitter-tweet');
-        a.href = "https://twitter.com/lukvmil/status/1397260429081067524";
+        let a = e.getElementsByClassName('twitter-tweet')[0];
+        a.href = url;
+
+        document.getElementById('status_bar').appendChild(e);
     }
 
     
     fetch('/api/latest_agreements')
         .then(response => response.json())
         .then(data => {
-            console.log(data);
+            for (let key in data) {
+                let url = data[key];
+                render(url);
+            }
         })
 
 </script>

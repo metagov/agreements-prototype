@@ -31,10 +31,18 @@ def latest_agreements():
     f = open('app/database/db.json', 'r')
     db = json.load(f)
     f.close()
+    agreements = db['agreements']
     # retrieves status ids of 10 most recent agreements
-    statuses = list(db['agreements'].keys())[1:11]
+    statuses = list(agreements.keys())[1:11]
+
+    urls = []
+    for s in statuses:
+        a = agreements[s]
+        name = a['creator_screen_name']
+        url = f'https://twitter.com/{name}/status/{s}'
+        urls.append(url)
 
     # converts list to json recognizable dictionary
-    return dict(zip(range(1, 11), statuses))
+    return dict(zip(range(0, 10), urls))
 
 # flask_app.run(host="127.0.0.1", port=80, debug=True)
