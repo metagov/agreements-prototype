@@ -149,6 +149,8 @@ class Account:
 
             if c_type == 'TSC':
                 update_message = f'Your agreement staking {collateral} TSC has been created!'
+            elif c_type == 'none':
+                update_message = f'Your unenforced agreement has been created!'
             else:
                 update_message = f'Your agreement staking {collateral} {c_type}s has been created!'
 
