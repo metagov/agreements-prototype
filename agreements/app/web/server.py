@@ -1,14 +1,7 @@
 import json
-
-from flask import Flask, redirect
+from flask import Flask, redirect, render_template
 
 flask_app = Flask(__name__)
-
-def get_html(name):
-    f = open(f'app/web/{name}.html', 'r')
-    html = f.read()
-    f.close()
-    return html
 
 @flask_app.route('/')
 def root():
@@ -16,15 +9,15 @@ def root():
     
 @flask_app.route('/home')
 def home():
-    return get_html('home')
+    return render_template('home.html')
 
 @flask_app.route('/about')
 def about():
-    return get_html('about')
+    return render_template('about.html')
 
 @flask_app.route('/help')
 def help():
-    return get_html('help')
+    return render_template('help.html')
 
 @flask_app.route('/api/latest_agreements')
 def latest_agreements():
