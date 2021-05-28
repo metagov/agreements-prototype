@@ -33,6 +33,6 @@ def latest_agreements():
     f.close()
     statuses = list(db['agreements'].keys())[1:11]
 
-    return statuses        
+    return json.dumps(statuses)        
 
 # flask_app.run(host="127.0.0.1", port=80, debug=True)
