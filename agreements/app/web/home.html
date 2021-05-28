@@ -78,23 +78,32 @@
     
 
     <div class="status" id="status_bar">
-        <blockquote class="twitter-tweet">
-            <a class="twitter-tweet" href="https://twitter.com/agreementengine/status/1397303332469985285"></a>
-        </blockquote>
-        <blockquote class="twitter-tweet">
-            <a class="twitter-tweet" href="https://twitter.com/agreementengine/status/1397303332469985285"></a>
-        </blockquote>
-        <blockquote class="twitter-tweet">
-            <a class="twitter-tweet" href="https://twitter.com/agreementengine/status/1397303332469985285"></a>
-        </blockquote>
-        <blockquote class="twitter-tweet">
-            <a class="twitter-tweet" href="https://twitter.com/agreementengine/status/1397303332469985285"></a>
-        </blockquote>
-        <blockquote class="twitter-tweet">
-            <a class="twitter-tweet" href="https://twitter.com/lukvmil/status/1397260429081067524"></a>
-        </blockquote>
+
         <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     </div>
+
+    <blockquote id="tweet-template" hidden>
+        <a class="twitter-tweet" href=""></a>
+    </blockquote>
 </body>
+
+<script>
+    function render() {
+        let e = document.getElementById('tweet-template').cloneNode(true);
+        e.removeAttribute('hidden');
+        e.className = 'twitter-tweet';
+
+        let a = e.getElementsByClassName('twitter-tweet');
+        a.href = "https://twitter.com/lukvmil/status/1397260429081067524";
+    }
+
+    
+    fetch('/api/latest_agreements')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+        })
+
+</script>
 
 </html>
