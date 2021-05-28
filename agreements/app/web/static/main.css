@@ -61,3 +61,11 @@ body {
 a {
     color: #2687B6;
 }
+
+p + div {
+    margin-top: -15px;
+}
+
+.indent {
+    margin-left: 40px;
+}
