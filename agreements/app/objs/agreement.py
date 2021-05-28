@@ -40,28 +40,35 @@ class Agreement:
     # generates a new agreement
     def generate(self, account):
         text = self.status.full_text
-        # "agreementengine" is stripped from input because it is selected instead of "agreement" command
-        text = text.replace("agreementengine", "")
-        args = text[text.find(core.Consts.kwords['agr']):].split()
-
         
-        if len(args) == 1:
-            self.error_parsing = True
-            return False
-        # min 2 args
-        elif len(args) == 2:
-            arg_type = ""
-        else:
-            arg_size = args[1]
-            arg_type = args[2]
+        state = 'find_command'
+        collateral_size = 0
+        collateral_type = ''
+        # parses command parameters for agreements of type TSC, like, retweet, and none
+        for word in text.split():
+            if state == 'find_command':
+                if word == 'agreement':
+                    state = 'find_size'
+            
+            elif state == 'find_size':
+                if word.isnumeric():
+                    collateral_size = int(word)
+                    collateral_type = 'TSC'
+                    state = 'find_type'
+                else:
+                    collateral_type = 'none'
+                    break
 
-        # establishing contract type from tweet args
-        if (arg_type == "like") or (arg_type == "likes"):
-            collateral_type = "like"
-        elif (arg_type == "retweet") or (arg_type == "retweets"):
-            collateral_type = "retweet"
-        else:
-            collateral_type = "TSC"
+            elif state == 'find_type':
+                if (word == 'like') or (word == 'likes'):
+                    collateral_type = 'like'
+                    break
+                elif (word == 'retweet') or (word == 'retweets'):
+                    collateral_type = 'retweet'
+                    break
+                else:
+                    collateral_type = 'TSC'
+                    break
         
         # extracts all users mentioned in tweet
         users = self.status.entities['user_mentions']
@@ -76,38 +83,24 @@ class Agreement:
         
         # attempts to pay with existing balance
         if collateral_type == "TSC":
-            try:
-                collateral = int(arg_size)
-            except ValueError:
-                self.logger.warn('Could not parse agreement command')
-                self.error_parsing = True
-                return False
-            
-            if collateral > account.check_balance():
+            if collateral_size > account.check_balance():
                 self.logger.warn('Insufficient balance to pay agreement collateral')
                 self.balance_limited = True
                 return False
             else:
                 # removes funds from account balance
-                account.change_balance(account.id, -collateral)
-                self.logger.info(f'Removed {collateral} TSC of collateral from the balance of {account.screen_name} [{account.id}]')
-        
-        # if user is paying with likes or retweets, the contract will only be created if the agreement is broken
-        else:
-            try:
-                collateral = int(arg_size)
-            except ValueError:
-                self.logger.warn('Could not parse agreement command')
-                self.error_parsing = True
-                return False
+                account.change_balance(account.id, -collateral_size)
+                self.logger.info(f'Removed {collateral_size} TSC of collateral from the balance of {account.screen_name} [{account.id}]')
 
+        # if user is paying with likes or retweets, the contract will only be created if the agreement is broken
+        elif (collateral_type == "like") or (collateral_type == "retweet"):
             self.logger.info(f'Generating new contract for {account.screen_name} [{account.id}] (agreement context)')
                 
             status = core.api.get_status(self.id)
 
             # creates new contract
             con = contract.Contract(status)
-            total_value = con.complex_generate(collateral_type, collateral)
+            total_value = con.complex_generate(collateral_type, collateral_size)
             
             # contract will not be activated unless the agreement is broken
             con.contract_table.update(
@@ -120,8 +113,6 @@ class Agreement:
                 self.contract_limited = True
                 return False
 
-            
-
         entry = {
             "state": "open",
             "creator_id": str(account.id),
@@ -131,7 +122,7 @@ class Agreement:
             "member_screen_name": member['screen_name'],
             "member_ruling": "",
             "collateral_type": collateral_type,
-            "collateral": str(collateral),
+            "collateral": str(collateral_size),
             "created": str(self.status.created_at),
             "text": text
         }
@@ -193,9 +184,10 @@ class Agreement:
                 self.logger.info(f'Paid back {collateral} TSC to {creator_screen_name} [{creator_id}] ')
 
                 update_message = f'Agreement is upheld, {collateral} TSC has been repaid to @{creator_screen_name}.'
+            
             # if the creator used likes/retweets as collateral nothing happens and the contracts aren't generated
-            else:
-                self.logger.info(f'Collateral type was future contract, nothing to do')
+            elif (collateral_type == "like") or (collateral_type == "retweet"):
+                self.logger.info('Agreement is upheld, collateral type is future contract, nothing to do')
                 # effectively zeroes out dead contract
                 core.db.table('contracts').update(
                     {'count': '0'},
@@ -203,7 +195,11 @@ class Agreement:
                 )
                 
                 update_message = f'Agreement is upheld, no contracts will be generated.'
+            
+            elif collateral_type == "none":
+                self.logger.info('Agreement is upheld, collateral type is none, nothing to do')
 
+                update_message = 'Agreement is upheld.'
 
         # both users say the agreement was broken
         elif ruling == 'broken':
@@ -212,6 +208,7 @@ class Agreement:
                 account.change_balance(member_id, collateral)
                 self.logger.info(f'Transferred {collateral} TSC to {member_id} [{member_id}]')
                 update_message = f'Agreement is broken, {collateral} TSC has been paid to @{member_screen_name}'
+            
             # if the creator used likes/retweets as collateral, a contract is generated and the profit is transferred to the member
             elif (collateral_type == "like") or (collateral_type == "retweet"):
                 # retrieving inactive contract
@@ -240,6 +237,9 @@ class Agreement:
                 account.change_balance(member_id, collateral)
                 self.logger.info(f'Transferred {collateral} TSC to {member_screen_name} [{member_id}]') 
                 update_message = f'Agreement is broken, @{creator_screen_name}\'s contract was generated and {collateral} TSC has been paid to @{member_screen_name}.'
+            
+            elif collateral_type == "none":
+                self.logger.info('Agreement is broken, collateral type is none, nothing to do.')
                 
         elif ruling == 'disputed':
             update_message = f'Agreement outcome is disputed. No action will be taken, users can change their ruling to come to a consensus.'
