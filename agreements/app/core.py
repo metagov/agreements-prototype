@@ -57,7 +57,7 @@ class Consts:
     retweet_value = retrieve(int, 'retweet_value')
     retweet_limit = retrieve(int, 'retweet_limit')
     tax_rate = retrieve(float, 'tax_rate')
-    send_tweets = False
+    send_tweets = True
 
 # tweets a message, or displays it to the console if sending tweets is disabled
 def emit(message, in_reply_to=None):

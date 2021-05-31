@@ -101,17 +101,17 @@ class Agreement:
             # creates new contract
             con = contract.Contract(status)
             total_value = con.complex_generate(collateral_type, collateral_size)
+
+            if con.resized or con.oversized:
+                self.logger.warn('Contract limit reached when creating agreement')
+                self.contract_limited = True
+                return False
             
             # contract will not be activated unless the agreement is broken
             con.contract_table.update(
                 {'state': 'dead'},
                 doc_ids=[self.id]
             )
-
-            if con.resized or con.oversized:
-                self.logger.warn('Contract limit reached when creating agreement')
-                self.contract_limited = True
-                return False
 
         entry = {
             "state": "open",
