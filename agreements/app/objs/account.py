@@ -36,7 +36,7 @@ class Account:
         # greeting message for new users (excluding the agreement engine)
         if new_user and (self.id != core.api.me().id):
             self.logger.info(f"Welcoming {self.screen_name}")
-            message = f"@{self.screen_name} Welcome to agreement engine! Here are some useful links to get you started: http://agreements.metagov.org"
+            message = f"@{self.screen_name} Welcome to Agreement Engine! Check out http://agreements.metagov.org/about and http://agreements.metagov.org/help to learn about agreements and how to make them!"
             core.emit(message)
 
     # returns dict from db
