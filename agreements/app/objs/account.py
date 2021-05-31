@@ -291,8 +291,9 @@ class Account:
             # adding to recipient's balance
             recipient = Account(recipient_user)
             self.change_balance(recipient.id, payment)
+            self.logger.info(f'Transferred {payment} from @{self.screen_name} to @{recipient.screen_name}')
 
-            update_message = 'Sent {payment} TSC to @{recipient.screen_name}.'
+            update_message = f'Sent {payment} TSC to @{recipient.screen_name}.'
         
         message = f'@{self.screen_name} ' + update_message
         core.emit(message, status.id)
