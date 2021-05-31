@@ -57,7 +57,7 @@ class Consts:
     retweet_value = retrieve(int, 'retweet_value')
     retweet_limit = retrieve(int, 'retweet_limit')
     tax_rate = retrieve(float, 'tax_rate')
-    send_tweets = True
+    send_tweets = False
 
 # tweets a message, or displays it to the console if sending tweets is disabled
 def emit(message, in_reply_to=None):
@@ -73,7 +73,7 @@ def emit(message, in_reply_to=None):
             auto_populate_reply_metadata=True
         )
 
-        logger.info('LIVE:', message)
+        logger.info('LIVE: ' + message)
 
     else:
-        logger.info('DEBUG:', message)
+        logger.info('DEBUG: ' + message)

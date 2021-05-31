@@ -66,6 +66,8 @@ class Parser:
             acc.send_current_likes(status)
         elif kword == Consts.kwords['rtw']:
             acc.send_current_retweets(status)
+        elif kword == Consts.kwords['snd']:
+            acc.send_tsc(status)
         elif kword == Consts.kwords['agr']:
             acc.create_agreement(status)
         elif kword == Consts.kwords['uph']:

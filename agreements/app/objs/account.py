@@ -19,6 +19,7 @@ class Account:
             self.id = arg
             if not self.in_database():
                 self.logger.warn('Account does not exist, unable to generate (user object not provided)')
+                return
 
         # can be initialized with a tweepy user object, generates new db entry if doesn't already exist
         elif type(arg) == tweepy.models.User:
@@ -258,7 +259,7 @@ class Account:
         message = f'@{self.screen_name} ' + update_message
         core.emit(message, status.id)
 
-    def send(self, status):
+    def send_tsc(self, status):
         self.logger.info(f'Sending TSC from {self.screen_name} [{self.id}]')
 
         text = status.full_text
@@ -277,17 +278,21 @@ class Account:
             self.logger.warn('Did not specify users to send to')
             return False
 
-        to_send_to = users[1]
+        recipient_id = users[1]['id']
+        recipient_user = core.api.get_user(recipient_id)
 
         # balance check
         if payment > self.check_balance():
             self.logger.warn('Insufficient balance to send')
-            return False
+            update_message = 'Insufficient balance to send that amount.'
         else:
             # removing from own balance
             self.change_balance(self.id, -payment)
             # adding to recipient's balance
-            self.change_balance(to_send_to['id_str'], payment)
+            recipient = Account(recipient_user)
+            self.change_balance(recipient.id, payment)
+
+            update_message = 'Sent {payment} TSC to @{recipient.screen_name}.'
         
-        message = f'@{self.screen_name} Sent {payment} TSC to @{to_send_to["screen_name"]}.'
+        message = f'@{self.screen_name} ' + update_message
         core.emit(message, status.id)
