@@ -149,6 +149,10 @@ class Agreement:
     def vote(self, account, ruling):
         entry = self.get_entry()
 
+        if entry['state'] == 'closed':
+            self.logger.warn('User voted on a closed agreement.')
+            return False
+
         # adds ruling if member
         if str(account.id) == entry['member_id']:
             self.agreement_table.update(
