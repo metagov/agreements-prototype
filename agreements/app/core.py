@@ -59,7 +59,7 @@ class Consts:
     send_tweets = True
 
 # tweets a message, or displays it to the console if sending tweets is disabled
-def emit(message, in_reply_to):
+def emit(message, in_reply_to=None):
 
     # adds status in response to as "salt" because Twitter doesn't allow duplicate statuses
     if in_reply_to:
