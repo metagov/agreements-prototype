@@ -32,6 +32,8 @@ def run():
     # iterates through statuses in chronological order
     for status in reversed(new_statuses):
         try:
+            logger.info('')
+            logger.info(f'NEW STATUS: [{status.id_str}] -> {status.full_text}')
             parser.parse(status)
         except tweepy.error.TweepError as error:
             if error.api_code == 385:

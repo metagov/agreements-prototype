@@ -133,47 +133,37 @@ class Contract:
 
     def generate(self):
         text = self.status.full_text
-        # parsing in the form of "generate 10 likes"
-        args = text[text.find(core.Consts.kwords['gen']):].split()
-        if len(args) >= 3:
-            arg_size = args[1]
-            arg_type = args[2]
-        elif len(args) == 2:
-            arg_size = args[1]
-            arg_type = None
-        else:
-            arg_size = None
-            arg_type = None
-        
-        if arg_size:
-            # trying to extract contract size
-            try:
-                contract_size = int(arg_size)
-            except ValueError:
-                self.logger.warn(f'Could not parse contract size: "{arg_size}"')
-                self.bad_args = True
-                return False
+
+        state = 'find_command'
+        contract_size = 0
+        contract_type = ''
+
+        for word in text.split():
+            if state == 'find_command':
+                if word == 'generate':
+                    state = 'find_size'
             
-            # trying to extract contract type
-            if arg_type:
-                if (arg_type == "likes") or (arg_type == "like"):
-                    contract_type = "like"
-                elif (arg_type == "retweets") or (arg_type == "retweet"):
-                    contract_type = "retweet"
+            elif state == 'find_size':
+                if word.isnumeric():
+                    contract_size = int(word)
+                    state = 'find_type'
                 else:
-                    self.logger.warn(f'Could not parse contract type: "{arg_type}"')
-                    self.bad_args = True
-                    return False
-
-            else:
-                # if only size is given, defaults to like
-                contract_type = "like"
-
-        else:
-            # default if no parameters given
-            contract_size = 10
-            contract_type = "like"
-        
+                    # default params if none given
+                    contract_size = 10
+                    contract_type = 'like'
+                    break
+            
+            elif state == 'find_type':
+                if (word == 'like') or (word == 'likes'):
+                    contract_type = 'like'
+                    break
+                elif (word == 'retweet') or (word == 'retweets'):
+                    contract_type = 'retweet'
+                    break
+                else:
+                    # default type if none given
+                    contract_type = 'like'
+                    break
         
         return self.complex_generate(contract_type, contract_size)
 
