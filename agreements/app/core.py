@@ -1,8 +1,8 @@
 import json, logging
 import tweepy
 from tinydb import TinyDB
-from app.auth import auth
-from app.database.metadata import Metadata
+from .auth import auth
+from .database.metadata import Metadata
 
 # setting up app level logger to log in stdout and to a file
 root_logger = logging.getLogger('app')
@@ -59,7 +59,12 @@ class Consts:
     send_tweets = True
 
 # tweets a message, or displays it to the console if sending tweets is disabled
-def emit(message, in_reply_to):
+def emit(message, in_reply_to=None):
+
+    # adds status in response to as "salt" because Twitter doesn't allow duplicate statuses
+    if in_reply_to:
+        message = f'{message} #{in_reply_to}'
+
     if Consts.send_tweets:
         api.update_status(
             status=message,

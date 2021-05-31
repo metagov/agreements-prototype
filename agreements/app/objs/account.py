@@ -1,9 +1,10 @@
-from app import core
-from tinydb.database import Document
-from . import contract, agreement
-import logging, math
+import logging
+import math
 import tweepy
-import pdb 
+from tinydb.database import Document
+
+from .. import core
+from . import contract, agreement
 
 # represents a single account
 class Account:
@@ -35,8 +36,8 @@ class Account:
         # greeting message for new users (excluding the agreement engine)
         if new_user and (self.id != core.api.me().id):
             self.logger.info(f"Welcoming {self.screen_name}")
-            message = f"@{self.screen_name} Welcome to agreement engine! Here are some useful links to get you started: https://agreements.metagov.org"
-            core.emit(message, self.id)
+            message = f"@{self.screen_name} Welcome to Agreement Engine! Check out http://agreements.metagov.org/about and http://agreements.metagov.org/help to learn about agreements and how to make them!"
+            core.emit(message)
 
     # returns dict from db
     def get_entry(self):
@@ -148,6 +149,8 @@ class Account:
 
             if c_type == 'TSC':
                 update_message = f'Your agreement staking {collateral} TSC has been created!'
+            elif c_type == 'none':
+                update_message = f'Your unenforced agreement has been created!'
             else:
                 update_message = f'Your agreement staking {collateral} {c_type}s has been created!'
 

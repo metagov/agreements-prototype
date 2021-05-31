@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href='/static/main.css' />
+</head>
+
+<body>
+    <div class="header">
+        <div class="title">Agreement Engine</div>
+    </div>
+
+    <div class="tab_container">
+        <div class="tab">
+            <button onclick="window.location.href='/home'">home</button>
+            <button onclick="window.location.href='/about'">about</button>
+            <button onclick="window.location.href='/help'">help</button>
+            <button onclick="window.open('https://github.com/metagov/agreements-prototype', '_blank')">source</button>
+            <button onclick="window.open('https://metagov.org', '_blank')">metagov</button>
+        </div>
+    </div>
+
+    <div class="text">
+        <p>
+            Here is a list of every command that can be used with Agreement Engine.
+            For a full explanation of the system and how it works, see the about page.
+            In order to run a command, send a tweet starting with @agreementengine, followed by the command and its arguments.
+        </p>
+
+        <p>
+            <b>generate</b> (number) (likes/retweets)
+        </p>
+        <div class='indent'>
+            <p>
+                Generates new like or retweet contracts, awarding the user with TSC.
+                If no parameters are given, it defaults to generating 10 like contracts. <br>
+                <i>ex: @agreementengine generate 5 retweets</i> <br>
+                <a href="https://twitter.com/intent/tweet?text=@agreementengine%20generate%205%20retweets" target="_blank">
+                    try it yourself!
+                </a>
+            </p>
+        </div>
+
+        <p>
+            <b>execute</b> (number) | <i>in reply to</i>
+        </p>
+        <div class='indent'>
+            <p>
+                Spends TSC to execute other people's contracts on the post replied to.
+                This command must be executed in response to another post. <br>
+                <i>ex: @agreementengine execute 100</i>
+            </p>
+        </div>
+     
+        <p>
+            <b>balance</b>
+        </p>
+        <div class='indent'>
+            <p>
+                Gives the user's current balance in TSC. <br>
+                <i>ex: @agreementengine balance</i> <br>
+                <a href="https://twitter.com/intent/tweet?text=@agreementengine%20balance" target="_blank">
+                    try it yourself!
+                </a>
+        </div>
+
+        <p>
+            <b>likes</b>
+        </p>
+        <div class='indent'>
+            <p>
+                Displays how many active like contracts the user has.
+                A user can have a maximum of 10 active like contracts at a time. <br>
+                <i>ex: @agreementengine likes</i> <br>
+                <a href="https://twitter.com/intent/tweet?text=@agreementengine%20likes" target="_blank">
+                    try it yourself!
+                </a>
+            </p>
+        </div>
+
+        <p>
+            <b>retweets</b>
+        </p>
+        <div class='indent'>
+            <p>
+                Displays how many active retweet contracts the user has.
+                A user can have a maximum of 10 active retweet contracts at a time. <br>
+                <i>ex: @agreementengine retweets</i> <br>
+                <a href="https://twitter.com/intent/tweet?text=@agreementengine%20retweets" target="_blank">
+                    try it yourself!
+                </a>
+            </p>
+        </div>
+
+        <p>
+            <b>agreement</b> (number) (type) | <i>tag other users</i>
+        <div class='indent'>
+            <p>
+                Creates a new agreement between the user and the first other user mentioned in the post.
+                If no parameters are given, an unenforced contract is created.
+                The creator of the agreement can stake TSC or like/retweet contracts which are exchanged for TSC if the agreement is broken.
+                If the agreement is upheld, the creator keeps their stake, otherwise it is given to the other user. <br>
+                <i>ex: @agreementengine agreement 500 @otheruser I promise to visit next time I'm in LA!</i> <br>
+                <i>ex: @agreementengine agreement 5 likes @otheruser I'll pay you back for dinner last night.</i> <br>
+                <a href="https://twitter.com/intent/tweet?text=@agreementengine%20agreement%20making%20my%20first%20agreement%20with%20@agreementengine"
+                    target="_blank">
+                    try it yourself!
+                </a>
+            </p>
+        </div>
+
+        </p>
+        <p>
+            <b>upheld</b> | <i>in reply to</i>
+        <div class='indent'>
+            <p>
+                Votes that an agreement was upheld. Must be a response to an agreement post. <br>
+                <i>ex: @agreementengine upheld</i>
+            </p>
+        </div>
+        </p>
+        <p>
+            <b>broken</b> | <i>in reply to</i>
+        <div class='indent'>
+            <p>
+                Votes that an agreement was broken. Must be a response to an agreement post. <br>
+                <i>ex: @agreementengine broken</i>
+            </p>
+        </div>
+        </p>
+    </div>
+
+</body>
+
+</html>

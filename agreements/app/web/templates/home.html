@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href='/static/main.css' />
+</head>
+
+<body>
+    <div class="header">
+        <div class="title">Agreement Engine</div>
+    </div>
+    
+    <div class="tab_container">
+        <div class="tab">
+            <button onclick="window.location.href='/home'">home</button>
+            <button onclick="window.location.href='/about'">about</button>
+            <button onclick="window.location.href='/help'">help</button>
+            <button onclick="window.open('https://github.com/metagov/agreements-prototype', '_blank')">source</button>
+            <button onclick="window.open('https://metagov.org', '_blank')">metagov</button>
+        </div>
+    </div>
+    
+
+    <div class="status" id="status_bar">
+
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </div>
+
+    <blockquote id="tweet-template" hidden>
+        <a class="twitter-tweet" href=""></a>
+    </blockquote>
+</body>
+
+<script>
+    function render(url) {
+        let e = document.getElementById('tweet-template').cloneNode(true);
+        e.removeAttribute('hidden');
+        e.className = 'twitter-tweet';
+
+        let a = e.getElementsByClassName('twitter-tweet')[0];
+        a.href = url;
+
+        document.getElementById('status_bar').appendChild(e);
+    }
+
+    
+    fetch('/api/latest_agreements')
+        .then(response => response.json())
+        .then(data => {
+            for (let key in data) {
+                let url = data[key];
+                render(url);
+            }
+        })
+
+</script>
+
+</html>
