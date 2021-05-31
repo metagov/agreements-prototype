@@ -33,8 +33,13 @@ def run():
     for status in reversed(new_statuses):
         try:
             parser.parse(status)
-        except tweepy.error.TweepError:
-            logger.warn('Duplicate tweet')
+        except tweepy.error.TweepError as error:
+            if error.api_code == 385:
+                logger.warn('Cannot reply to tweet')
+            elif error.api_code == 187:
+                logger.warn('Duplicate tweet')
+            else:
+                logger.warn(f'Unknown tweepy error: {error.api_code}')
 
         # updates last status id -> next mentions timeline won't see already parsed tweets
         if status.id > last_status_parsed:

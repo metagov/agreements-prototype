@@ -56,10 +56,15 @@ class Consts:
     retweet_value = retrieve(int, 'retweet_value')
     retweet_limit = retrieve(int, 'retweet_limit')
     tax_rate = retrieve(float, 'tax_rate')
-    send_tweets = False
+    send_tweets = True
 
 # tweets a message, or displays it to the console if sending tweets is disabled
 def emit(message, in_reply_to):
+
+    # adds status in response to as "salt" because Twitter doesn't allow duplicate statuses
+    if in_reply_to:
+        message = f'{message} #{in_reply_to}'
+
     if Consts.send_tweets:
         api.update_status(
             status=message,
