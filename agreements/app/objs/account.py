@@ -19,6 +19,7 @@ class Account:
             self.id = arg
             if not self.in_database():
                 self.logger.warn('Account does not exist, unable to generate (user object not provided)')
+                return
 
         # can be initialized with a tweepy user object, generates new db entry if doesn't already exist
         elif type(arg) == tweepy.models.User:
@@ -230,6 +231,7 @@ class Account:
         try:
             to_spend = int(arg)
         except ValueError:
+            self.logger.warn(f'Could not parse to_spend: "{arg}"')
             return False
         
         # executed on the post being replied to (ie reply to post you want to execute contracts on)
@@ -254,7 +256,44 @@ class Account:
             else:
                 update_message = f'Unable to execute any contracts, your account has not been charged.'
 
-        message = f'@{self.screen_name} ' + update_message + " #" + str(status.id)
+        message = f'@{self.screen_name} ' + update_message
         core.emit(message, status.id)
 
+    def send_tsc(self, status):
+        self.logger.info(f'Sending TSC from {self.screen_name} [{self.id}]')
 
+        text = status.full_text
+        arg = text[text.find(core.Consts.kwords['snd']):].split()[1]
+
+        try:
+            payment = int(arg)
+        except ValueError:
+            self.logger.warn(f'Could not parse payment: "{arg}"')
+            return False
+
+        users = status.entities['user_mentions']
+
+        # sending to which user?
+        if len(users) <= 1:
+            self.logger.warn('Did not specify users to send to')
+            return False
+
+        recipient_id = users[1]['id']
+        recipient_user = core.api.get_user(recipient_id)
+
+        # balance check
+        if payment > self.check_balance():
+            self.logger.warn('Insufficient balance to send')
+            update_message = 'Insufficient balance to send that amount.'
+        else:
+            # removing from own balance
+            self.change_balance(self.id, -payment)
+            # adding to recipient's balance
+            recipient = Account(recipient_user)
+            self.change_balance(recipient.id, payment)
+            self.logger.info(f'Transferred {payment} from @{self.screen_name} to @{recipient.screen_name}')
+
+            update_message = f'Sent {payment} TSC to @{recipient.screen_name}.'
+        
+        message = f'@{self.screen_name} ' + update_message
+        core.emit(message, status.id)

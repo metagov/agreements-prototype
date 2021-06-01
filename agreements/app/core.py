@@ -47,6 +47,7 @@ class Consts:
         'bal': 'balance',
         'lik': 'likes',
         'rtw': 'retweets',
+        'snd': 'send',
         'agr': 'agreement',
         'uph': 'upheld',
         'brk': 'broken'
@@ -71,5 +72,8 @@ def emit(message, in_reply_to=None):
             in_reply_to_status_id=in_reply_to,
             auto_populate_reply_metadata=True
         )
+
+        logger.info('LIVE: ' + message)
+
     else:
-        print(message)
+        logger.info('DEBUG: ' + message)
