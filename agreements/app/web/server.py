@@ -31,7 +31,7 @@ def latest_agreements():
     # retrieves status urls of 10 most recent agreements
     urls = []
     count = 0
-    for s in agreements.keys():
+    for s in list(agreements.keys())[1:]:
         if count > 10:
             break
 
@@ -44,7 +44,6 @@ def latest_agreements():
             urls.append(url)
 
         count += 1
-
     # converts list to json recognizable dictionary
     return dict(zip(range(0, 10), urls[::-1]))
 
