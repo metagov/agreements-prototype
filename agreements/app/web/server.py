@@ -21,19 +21,29 @@ def help():
 
 @flask_app.route('/api/latest_agreements')
 def latest_agreements():
-    f = open('app/database/db.json', 'r')
-    db = json.load(f)
-    f.close()
+    with open('app/database/db.json', 'r') as f:
+        db = json.load(f)
+    with open('app/web/blocklist.json', 'r') as f:
+        blocklist = json.load(f)
     agreements = db['agreements']
-    # retrieves status ids of 10 most recent agreements
-    statuses = list(agreements.keys())[1:11]
-
+    blocked_users = blocklist['blocked_users']
+    
+    # retrieves status urls of 10 most recent agreements
     urls = []
-    for s in statuses:
+    count = 0
+    for s in agreements.keys():
+        if count > 10:
+            break
+
         a = agreements[s]
         name = a['creator_screen_name']
-        url = f'https://twitter.com/{name}/status/{s}'
-        urls.append(url)
+
+        # adds users to list of urls displayed on home page if they aren't on the block list
+        if name not in blocked_users:
+            url = f'https://twitter.com/{name}/status/{s}'
+            urls.append(url)
+
+        count += 1
 
     # converts list to json recognizable dictionary
     return dict(zip(range(0, 10), urls[::-1]))
