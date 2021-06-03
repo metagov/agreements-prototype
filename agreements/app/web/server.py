@@ -44,6 +44,7 @@ def latest_agreements():
             urls.append(url)
 
         count += 1
+    print(urls)
     # converts list to json recognizable dictionary
     return dict(zip(range(0, 10), urls[::-1]))
 

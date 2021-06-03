@@ -1,2 +1,2 @@
 #!/bin/bash
-gunicorn "app.web.server:flask_app"
+gunicorn -c "ssl.conf.py" "app.web.server:flask_app"
