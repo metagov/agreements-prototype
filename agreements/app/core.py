@@ -38,8 +38,6 @@ Metadata(db)
 def retrieve(convert_to, tag):
     return convert_to(db.table('metadata').get(doc_id=1)[tag])
 
-
-
 class Consts:
     kwords = {
         'gen': 'generate',
@@ -58,6 +56,15 @@ class Consts:
     retweet_limit = retrieve(int, 'retweet_limit')
     tax_rate = retrieve(float, 'tax_rate')
     send_tweets = True
+
+if Consts.send_tweets:
+    logger.info('AGREEMENT ENGINE IS RUNNING LIVE, ENTER "Y" TO ACCEPT AND CONTINUE')
+    consent = input('> ')
+    if (consent == 'y') or (consent == 'Y'):
+        logger.info('ACCEPTED, RESUMING LAUNCH')
+    else:
+        logger.info('REJECTED, TERMINATING')
+        quit()
 
 # tweets a message, or displays it to the console if sending tweets is disabled
 def emit(message, in_reply_to=None):
