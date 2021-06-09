@@ -11,6 +11,7 @@ class Parser:
         self.meta = Metadata(db)
         self.accounts = db.table('accounts')
         self.contracts = db.table('contracts')
+        self.executions = db.table('executions')
         self.agreements = db.table('agreements')
         self.statuses = db.table('statuses')
         self.me = api.me()
@@ -31,6 +32,13 @@ class Parser:
                 {
                     'num_contracts': '0',
                     # 'total_value': '0',
+                },
+                doc_id=0))
+        
+        if not self.executions.contains(doc_id=0):
+            self.executions.insert(Document(
+                {
+                    'num_executions': '0',
                 },
                 doc_id=0))
         

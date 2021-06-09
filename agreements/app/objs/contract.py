@@ -1,4 +1,5 @@
 import logging
+import datetime
 from tinydb.database import Document
 from tinydb import where
 
@@ -9,6 +10,7 @@ from . import account
 class Pool:
     def __init__(self):
         self.contract_table = core.db.table('contracts')
+        self.execute_table = core.db.table('executions')
         self.logger = logging.getLogger(".".join([self.__module__, type(self).__name__]))
     
     # counts how many contracts a user has for a given type
@@ -24,9 +26,22 @@ class Pool:
         return contract_count
 
     # automatically executes contracts up to the amount specified on the given status
-    def auto_execute_contracts(self, user_id, status, amount):
+    def auto_execute_contracts(self, user_id, status_id, amount):
         balance = amount
         contract_dict = self.contract_table._read_table()
+
+        status = core.api.get_status(status_id)
+
+        execution = {
+            "state": "alive",
+            "user_id": str(status.author.id),
+            "user_screen_name": status.author.screen_name,
+            "created": str(status.created_at),
+            "expires": str(status.created_at + datetime.timedelta(hours=24)),
+            "amount": str(amount),
+            "promises": []
+        }
+
         # ids are ordered from oldest to newest (excluding zero entry containing metadata)
         contract_ids = list(contract_dict.keys())[1:]
 
@@ -49,23 +64,27 @@ class Pool:
 
             # a user can't like or retweet the same post twice
             acc = account.Account(c_user_id)
-            if (c_type == "like") and (acc.has_liked(status)):
+            if (c_type == "like") and (acc.has_liked(status_id)):
                 continue
-            if (c_type == "retweet") and (acc.has_retweeted(status)):
+            if (c_type == "retweet") and (acc.has_retweeted(status_id)):
                 continue
 
             # executes contract if it can be paid for
             if c_price <= balance:
                 if c_count > 0:
-                    self.execute(c_id, status)
+                    self.execute(c_id, status_id)
                     # adds status to likes or retweets list of an account
                     core.db.table('accounts').update(
-                        lambda d: d[f'{c_type}s'].append(str(status)),
+                        lambda d: d[f'{c_type}s'].append(str(status_id)),
                         doc_ids=[c_user_id]
                     )
                     # updates remaining balance
                     balance -= c_price
                     contract_count += 1
+
+                    # saves user id to execution promises
+                    execution['promises'].append(c_user_id)
+
                 else:
                     def kill_contract(doc):
                         doc['state'] = 'dead'
@@ -80,9 +99,25 @@ class Pool:
         
         if contract_count > 0:
             self.logger.info(f'Successfully executed {contract_count} contracts for {amount - balance}/{amount} TSC')
+            
+            # inserting execution if successful
+            self.execute_table.insert(Document(
+                execution, doc_id=status_id
+            ))
+
+            # updating number of contracts
+            def increment_num_executions(doc):
+                num_executions = int(doc['num_executions'])
+                num_executions += 1
+                doc['num_executions'] = str(num_executions)
+            self.execute_table.update(
+                increment_num_executions, 
+                doc_ids=[0]
+        )
         else:
             self.logger.info('Was not able to execute any contracts')
 
+        
         # returns the number of contracts executed and the amount actually spent executing contracts
         return (contract_count, amount - balance)
 

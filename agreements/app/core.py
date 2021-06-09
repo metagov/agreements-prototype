@@ -55,7 +55,7 @@ class Consts:
     retweet_value = retrieve(int, 'retweet_value')
     retweet_limit = retrieve(int, 'retweet_limit')
     tax_rate = retrieve(float, 'tax_rate')
-    send_tweets = True
+    send_tweets = False
 
 if Consts.send_tweets:
     logger.info('AGREEMENT ENGINE IS RUNNING LIVE, ENTER "Y" TO ACCEPT AND CONTINUE')
