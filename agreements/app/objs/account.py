@@ -54,6 +54,7 @@ class Account:
         entry = {
             'full_name': user.name,
             'screen_name': user.screen_name,
+            'reputation': '0',
             'balance': '0',
             'contracts': [],
             'likes': [],
@@ -93,6 +94,17 @@ class Account:
     def check_balance(self):
         return int(self.account_table.get(doc_id=self.id)['balance'])
     
+    def check_reputation(self):
+        return float(self.account_table.get(doc_id=self.id)['reputation'])
+    
+    def adjust_reputation(self, user_id, change):
+        rep = self.check_reputation() + change
+        # updating reputation
+        self.account_table.update(
+            {'reputation', str(rep)},
+            doc_ids=[user_id]
+        )
+
     def send_current_balance(self, status):
         self.logger.info('Sending current balance')
 
