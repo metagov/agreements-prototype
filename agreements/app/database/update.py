@@ -4,6 +4,7 @@ import tweepy
 from .. import core
 from .parser import Parser
 from .metadata import Metadata
+from ..objs.contract import Pool
 
 logger = logging.getLogger(__name__)
 
@@ -47,4 +48,6 @@ def run():
         if status.id > last_status_parsed:
             meta.update('last_status_parsed', status.id)
     
+    Pool().check_expirations()
+
     return (len(new_statuses), last_status_parsed)

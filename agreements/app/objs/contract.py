@@ -2,6 +2,7 @@ import logging
 import datetime
 from tinydb.database import Document
 from tinydb import where
+import tweepy
 
 from .. import core
 from . import account
@@ -39,7 +40,7 @@ class Pool:
             "created": str(status.created_at),
             "expires": str(status.created_at + datetime.timedelta(hours=24)),
             "amount": str(amount),
-            "promises": []
+            "promises": {}
         }
 
         # ids are ordered from oldest to newest (excluding zero entry containing metadata)
@@ -83,13 +84,11 @@ class Pool:
                     contract_count += 1
 
                     # saves user id to execution promises
-                    execution['promises'].append(c_user_id)
+                    execution['promises'][c_user_id] = False
 
                 else:
-                    def kill_contract(doc):
-                        doc['state'] = 'dead'
                     self.contract_table.update(
-                        kill_contract,
+                        {'state': 'dead'},
                         doc_ids=[c_id]
                     )
 
@@ -130,8 +129,6 @@ class Pool:
         c_user_id = to_execute['user_id']
         c_user_screen_name = to_execute['user_screen_name']
 
-        status = core.api.get_status(status_id)
-
         self.logger.info(f'Executed {c_type} contract #{contract_id} from {c_user_screen_name} [{c_user_id}] for {c_price} TSC')
 
         message = f'@{c_user_screen_name} Your contract has been called in, please {c_type} the above post!'
@@ -147,6 +144,49 @@ class Pool:
             update_contract(status_id),
             doc_ids=[contract_id]
         )
+    
+    def check_expirations(self):
+        execution_dict = self.execute_table._read_table()
+
+        # skips over id 0
+        for id in list(execution_dict.keys())[1:]:
+            e = execution_dict[id]
+            if e['state'] == 'alive':
+                # retrieving expiration date from table
+                format = "%Y-%m-%d %H:%M:%S"
+                expiration_date = datetime.datetime.strptime(e['expires'], format)
+                now = datetime.datetime.now()
+
+                # if expiration date has passed, check retweet promises
+                if expiration_date < now:
+                    self.logger.info(f'Execution #{id} is up for expiration')
+                    self.check_retweets(id)
+
+                    # kills execution obj after retweets have been checked
+                    self.execute_table.update(
+                        {'state': 'dead'},
+                        doc_ids=[id]
+                    )
+
+    # checks if promises were fulfilled for a given execution
+    def check_retweets(self, execution_id):
+        execution_dict = self.execute_table._read_table()
+        to_check = execution_dict[execution_id]
+        promises = to_check['promises']
+
+        for user_id in tweepy.Cursor(core.api.retweeters, execution_id).items(100):
+            user = str(user_id)
+
+            if user in promises.keys():
+                self.logger.info(f'User #{user} fulfilled promise')
+                # indicating promise was fulfilled
+                def set_promise(doc):
+                    doc['promises'][user] = True
+                self.execute_table.update(
+                    set_promise,
+                    doc_ids=[execution_id]
+                )
+
 
 # represents a single contract
 class Contract:
