@@ -155,7 +155,7 @@ class Pool:
                 # retrieving expiration date from table
                 format = "%Y-%m-%d %H:%M:%S"
                 expiration_date = datetime.datetime.strptime(e['expires'], format)
-                now = datetime.datetime.now()
+                now = datetime.datetime.utcnow()
 
                 # if expiration date has passed, check retweet promises
                 if expiration_date < now:
@@ -170,23 +170,33 @@ class Pool:
 
     # checks if promises were fulfilled for a given execution
     def check_retweets(self, execution_id):
-        execution_dict = self.execute_table._read_table()
-        to_check = execution_dict[execution_id]
-        promises = to_check['promises']
+        promises = self.execute_table._read_table()[execution_id]['promises']
 
         for user_id in tweepy.Cursor(core.api.retweeters, execution_id).items(100):
-            user = str(user_id)
+            user_id_str = str(user_id)
 
-            if user in promises.keys():
-                self.logger.info(f'User #{user} fulfilled promise')
+            if user_id_str in promises.keys():
                 # indicating promise was fulfilled
                 def set_promise(doc):
-                    doc['promises'][user] = True
+                    doc['promises'][user_id_str] = True
                 self.execute_table.update(
                     set_promise,
                     doc_ids=[execution_id]
                 )
+        
+        promises = self.execute_table._read_table()[execution_id]['promises']
 
+        for user_id_str in promises.keys():
+            user_id = int(user_id_str)
+            fulfilled = promises[user_id_str]
+            acc = account.Account(user_id)
+
+            if fulfilled:
+                self.logger.info(f'User #{user_id} fulfilled promise, added 1 reputation')
+                acc.adjust_reputation(1)
+            else:
+                self.logger.info(f"User #{user_id} didn't fulfill promise, removed 10 reputation")
+                acc.adjust_reputation(-10)
 
 # represents a single contract
 class Contract:

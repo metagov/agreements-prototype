@@ -95,14 +95,15 @@ class Account:
         return int(self.account_table.get(doc_id=self.id)['balance'])
     
     def check_reputation(self):
-        return float(self.account_table.get(doc_id=self.id)['reputation'])
+        return int(self.account_table.get(doc_id=self.id)['reputation'])
     
-    def adjust_reputation(self, user_id, change):
-        rep = self.check_reputation() + change
+    def adjust_reputation(self, change):
         # updating reputation
+        def update_rep(doc):
+            doc['reputation'] = str(self.check_reputation() + change)
         self.account_table.update(
-            {'reputation', str(rep)},
-            doc_ids=[user_id]
+            update_rep,
+            doc_ids=[self.id]
         )
 
     def send_current_balance(self, status):
