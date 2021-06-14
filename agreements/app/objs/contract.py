@@ -196,7 +196,7 @@ class Pool:
                 acc.adjust_reputation(core.Consts.rep_fulfilled_contract)
             else:
                 self.logger.info(f"User #{user_id} didn't fulfill promise, change: {core.Consts.rep_unfulfilled_contract} reputation")
-                acc.adjust_reputation(core.Consts.rep_fulfilled_contract)
+                acc.adjust_reputation(core.Consts.rep_unfulfilled_contract)
 
 # represents a single contract
 class Contract:

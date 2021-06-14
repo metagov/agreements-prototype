@@ -2,7 +2,7 @@ from tinydb.database import Document
 
 from .metadata import Metadata
 from ..objs import account, contract
-from ..core import Consts
+from ..core import Consts, emit
 
 class Parser:
     def __init__(self, db, api):
@@ -65,23 +65,49 @@ class Parser:
 
         # calls function based on first keyword found
         if kword == Consts.kwords['gen']:
-            acc.create_contract(status)
+            # this action, along with three others, are privileged and can only be run by users with a certain reputation level
+            if acc.check_reputation() >= Consts.priv_create_contract: 
+                acc.create_contract(status)
+            else:
+                message = f'@{status.author.screen_name} Your reputation is too low to complete this action.'
+                emit(message, status.id)
+
         elif kword ==  Consts.kwords['exe']:
-            acc.execute_contracts(status)
+            if acc.check_reputation() >= Consts.priv_execute_contracts:
+                acc.execute_contracts(status)
+            else:
+                message = f'@{status.author.screen_name} Your reputation is too low to complete this action.'
+                emit(message, status.id)
+
         elif kword == Consts.kwords['bal']:
             acc.send_current_balance(status)
+
         elif kword == Consts.kwords['rep']:
             acc.send_current_reputation(status)
+
         elif kword == Consts.kwords['lik']:
             acc.send_current_likes(status)
+
         elif kword == Consts.kwords['rtw']:
             acc.send_current_retweets(status)
+
         elif kword == Consts.kwords['snd']:
-            acc.send_tsc(status)
+            if acc.check_reputation() >= Consts.priv_transfer_tsc:
+                acc.send_tsc(status)
+            else:
+                message = f'@{status.author.screen_name} Your reputation is too low to complete this action.'
+                emit(message, status.id)
+
         elif kword == Consts.kwords['agr']:
-            acc.create_agreement(status)
+            if acc.check_reputation() >= Consts.priv_make_agreement:
+                acc.create_agreement(status)
+            else:
+                message = f'@{status.author.screen_name} Your reputation is too low to complete this action.'
+                emit(message, status.id)
+
         elif kword == Consts.kwords['uph']:
             acc.vote_upheld(status)
+
         elif kword == Consts.kwords['brk']:
             acc.vote_broken(status)
 

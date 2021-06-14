@@ -7,7 +7,11 @@
     "retweet_limit": "10",
     "tax_rate": "0.05",
     "max_reputation": "50",
-    "min_reputation": "30",
+    "min_reputation": "-30",
     "rep_fulfilled_contract": "1",
-    "rep_unfulfilled_contract": "-10"
+    "rep_unfulfilled_contract": "-10",
+    "priv_create_contract": "-10",
+    "priv_transfer_tsc": "-20",
+    "priv_execute_contracts": "-20",
+    "priv_make_agreement": "-20"
 }

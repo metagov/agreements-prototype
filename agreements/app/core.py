@@ -60,6 +60,10 @@ class Consts:
     min_reputation = retrieve(int, 'min_reputation')
     rep_fulfilled_contract = retrieve(int, 'rep_fulfilled_contract')
     rep_unfulfilled_contract = retrieve(int, 'rep_unfulfilled_contract')
+    priv_create_contract = retrieve(int, 'priv_create_contract')
+    priv_transfer_tsc = retrieve(int, 'priv_transfer_tsc')
+    priv_execute_contracts = retrieve(int, 'priv_execute_contracts')
+    priv_make_agreement = retrieve(int, 'priv_make_agreement')
     send_tweets = False
 
 if Consts.send_tweets:

@@ -103,7 +103,7 @@ class Account:
             new_rep = self.check_reputation() + change
             # keeps reputation with bounds of min/max value
             new_rep = min(new_rep, core.Consts.max_reputation)
-            new_rep = max(new_rep, core.Consts.max_reputation)
+            new_rep = max(new_rep, core.Consts.min_reputation)
 
             doc['reputation'] = str(new_rep)
         self.account_table.update(
