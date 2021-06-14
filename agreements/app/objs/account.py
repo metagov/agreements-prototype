@@ -100,7 +100,12 @@ class Account:
     def adjust_reputation(self, change):
         # updating reputation
         def update_rep(doc):
-            doc['reputation'] = str(self.check_reputation() + change)
+            new_rep = self.check_reputation() + change
+            # keeps reputation with bounds of min/max value
+            new_rep = min(new_rep, core.Consts.max_reputation)
+            new_rep = max(new_rep, core.Consts.max_reputation)
+
+            doc['reputation'] = str(new_rep)
         self.account_table.update(
             update_rep,
             doc_ids=[self.id]

@@ -5,5 +5,9 @@
     "like_limit": "10",
     "retweet_value": "5",
     "retweet_limit": "10",
-    "tax_rate": "0.05"
+    "tax_rate": "0.05",
+    "max_reputation": "50",
+    "min_reputation": "30",
+    "rep_fulfilled_contract": "1",
+    "rep_unfulfilled_contract": "-10"
 }

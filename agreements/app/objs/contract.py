@@ -192,11 +192,11 @@ class Pool:
             acc = account.Account(user_id)
 
             if fulfilled:
-                self.logger.info(f'User #{user_id} fulfilled promise, added 1 reputation')
-                acc.adjust_reputation(1)
+                self.logger.info(f'User #{user_id} fulfilled promise, change: {core.Consts.rep_fulfilled_contract} reputation')
+                acc.adjust_reputation(core.Consts.rep_fulfilled_contract)
             else:
-                self.logger.info(f"User #{user_id} didn't fulfill promise, removed 10 reputation")
-                acc.adjust_reputation(-10)
+                self.logger.info(f"User #{user_id} didn't fulfill promise, change: {core.Consts.rep_unfulfilled_contract} reputation")
+                acc.adjust_reputation(core.Consts.rep_fulfilled_contract)
 
 # represents a single contract
 class Contract:

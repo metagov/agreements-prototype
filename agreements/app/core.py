@@ -55,6 +55,10 @@ class Consts:
     retweet_value = retrieve(int, 'retweet_value')
     retweet_limit = retrieve(int, 'retweet_limit')
     tax_rate = retrieve(float, 'tax_rate')
+    max_reputation = retrieve(int, 'max_reputation')
+    min_reputation = retrieve(int, 'min_reputation')
+    rep_fulfilled_contract = retrieve(int, 'rep_fulfilled_contract')
+    rep_unfulfilled_contract = retrieve(int, 'rep_unfulfilled_contract')
     send_tweets = False
 
 if Consts.send_tweets:
