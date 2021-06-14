@@ -43,6 +43,7 @@ class Consts:
         'gen': 'generate',
         'exe': 'execute',
         'bal': 'balance',
+        'rep': 'reputation',
         'lik': 'likes',
         'rtw': 'retweets',
         'snd': 'send',

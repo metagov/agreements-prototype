@@ -70,6 +70,8 @@ class Parser:
             acc.execute_contracts(status)
         elif kword == Consts.kwords['bal']:
             acc.send_current_balance(status)
+        elif kword == Consts.kwords['rep']:
+            acc.send_current_reputation(status)
         elif kword == Consts.kwords['lik']:
             acc.send_current_likes(status)
         elif kword == Consts.kwords['rtw']:

@@ -114,7 +114,13 @@ class Account:
     def send_current_balance(self, status):
         self.logger.info('Sending current balance')
 
-        message = f'@{self.screen_name} ' + f'You currently have {self.check_balance()} TSC in your account.'
+        message = f'@{self.screen_name} You currently have {self.check_balance()} TSC in your account.'
+        core.emit(message, status.id)
+    
+    def send_current_reputation(self, status):
+        self.logger.info('Sending current reputation')
+
+        message = f'@{self.screen_name} You currently have a reputation of {self.check_reputation()}.'
         core.emit(message, status.id)
         
     def send_current_likes(self, status):
@@ -122,7 +128,7 @@ class Account:
 
         self.logger.info('Sending active like contract count')
 
-        message = f'@{self.screen_name} ' + f'You currently have {likes} active like contracts.'
+        message = f'@{self.screen_name} You currently have {likes} active like contracts.'
         core.emit(message, status.id)
 
     def send_current_retweets(self, status):
@@ -130,7 +136,7 @@ class Account:
 
         self.logger.info('Sending active retweet contract count')
 
-        message = f'@{self.screen_name} ' + f'You currently have {retweets} active retweet contracts.'
+        message = f'@{self.screen_name} You currently have {retweets} active retweet contracts.'
         core.emit(message, status.id)
 
     # checks whether a user has had a like contract called in on a status
